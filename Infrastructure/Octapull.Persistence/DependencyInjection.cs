@@ -7,7 +7,6 @@ namespace Octapull.Persistence
 {
     public static class DependencyInjection
     {
-        //private static readonly IConfiguration _configuration;
 
         public static IServiceCollection AddInfrastructureServices(this IServiceCollection services)
         {
@@ -16,20 +15,12 @@ namespace Octapull.Persistence
                 .AddJsonFile("appsettings.json")
                 .Build();
 
-            var connectionStringApplication = configuration.GetSection("MSSQLConntectionString").Value;
+            var connectionStringApplication = configuration.GetSection("MSSQLConnectionString").Value;
 
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 options.UseSqlServer(connectionStringApplication);
             });
-
-            //services.AddDbContext<ApplicationDbContext>(options =>
-            //{
-            //    options.UseNpgsql(connectionStringApplication);
-            //});
-
-            //services.AddDbContextFactory<EpicuriousIdentityContext>();
-            //services.AddDbContextFactory<ApplicationDbContextFactory>();
 
             return services;
         }

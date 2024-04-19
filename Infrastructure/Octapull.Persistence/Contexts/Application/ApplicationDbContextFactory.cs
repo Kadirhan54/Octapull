@@ -20,7 +20,7 @@ namespace Octapull.Persistence.Contexts.Application
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 
-            var connectionString = configuration.GetSection("MSSQLConntectionString").Value;
+            var connectionString = configuration.GetSection("MSSQLConnectionString").Value;
 
             optionsBuilder.UseSqlServer(connectionString);
 

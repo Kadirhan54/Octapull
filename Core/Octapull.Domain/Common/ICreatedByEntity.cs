@@ -9,7 +9,7 @@ namespace Octapull.Domain.Common
     public interface ICreatedByEntity
     {
         // TODO : Remove question marks 
-        public string? CreatedByUserId { get; set; }
+        public Guid? CreatedByUserId { get; set; }
         public DateTimeOffset? CreatedOn { get; set; }
     }
 }

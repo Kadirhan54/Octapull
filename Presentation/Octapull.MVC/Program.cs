@@ -1,7 +1,16 @@
+using Microsoft.AspNetCore.Identity;
+using Octapull.Domain.Identity;
+using Octapull.MVC;
+using Octapull.Persistence;
+using Octapull.Persistence.Contexts.Application;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddInfrastructureServices();
+builder.Services.AddWebServices();
 
 var app = builder.Build();
 
@@ -17,6 +26,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSession();
 
 app.UseAuthorization();
 
