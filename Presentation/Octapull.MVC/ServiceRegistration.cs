@@ -1,10 +1,14 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Octapull.Domain.Identity;
+using Octapull.MVC.Controllers;
 using Octapull.Persistence.Contexts.Application;
+using System.Text;
 
 namespace Octapull.MVC
 {
-    public static class DependencyInjection
+    public static class ServiceRegistration
     {
         public static IServiceCollection AddWebServices(this IServiceCollection services)
         {
@@ -12,6 +16,8 @@ namespace Octapull.MVC
 
             // Add services for SignInManager
             services.AddScoped<SignInManager<User>>();
+
+            services.AddHttpClient<MeetingController>();
 
             services.AddIdentity<User, Role>(options =>
             {
@@ -38,6 +44,26 @@ namespace Octapull.MVC
                      policy => policy.RequireRole("Admin"));
             });
 
+            IConfigurationRoot configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
+
+            var jwtSecret = configuration.GetSection("JWTSecret").Value;
+
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSecret))
+                    };
+                });
+
             //services.ConfigureApplicationCookie(options =>
             //{
             //    options.LoginPath = new PathString("/Auth/Login");
@@ -53,7 +79,6 @@ namespace Octapull.MVC
             //    options.ExpireTimeSpan = System.TimeSpan.FromDays(7);
             //    options.AccessDeniedPath = new PathString("/Auth/AccessDenied");
             //});
-
 
             //// Create roles during application startup
             //using (var serviceProvider = services.BuildServiceProvider())

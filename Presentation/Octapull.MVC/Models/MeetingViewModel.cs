@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Octapull.Application.Dtos
+﻿namespace Octapull.MVC.Models
 {
-    public class MeetingDto
+    public class MeetingViewModel
     {
         public string Name { get; set; }
         public DateTimeOffset StartDate { get; set; }

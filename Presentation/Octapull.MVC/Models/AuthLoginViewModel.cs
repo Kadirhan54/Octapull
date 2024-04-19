@@ -1,4 +1,4 @@
-namespace Octapull.MVC.ViewModels
+namespace Octapull.MVC.Models
 {
     public class AuthLoginViewModel
     {

@@ -1,4 +1,7 @@
-﻿namespace Octapull.Domain.Entities
+﻿using Microsoft.AspNetCore.Http;
+using Octapull.Domain.Identity;
+
+namespace Octapull.Domain.Entities
 {
     public class Meeting : EntityBase<Guid>
     {
@@ -6,9 +9,6 @@
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }
         public string Description { get; set; }
-        
-        // TODO : Use IFormFile 
         public string Document { get; set; }
-
     }
 }

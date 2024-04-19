@@ -12,7 +12,7 @@ using Octapull.Persistence.Contexts.Application;
 namespace Octapull.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240419123425_InitialCreate")]
+    [Migration("20240419203346_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

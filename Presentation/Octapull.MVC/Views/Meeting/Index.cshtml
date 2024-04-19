@@ -1,5 +1,46 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using Octapull.Domain.Entities
+@model IEnumerable<Meeting>
 @{
+    ViewData["Title"] = "Meetings";
 }
+
+@section Styles {
+    <link rel="stylesheet" type="text/css" href="~/css/image.css" />
+}
+
+<h1>Meetings</h1>
+<div class="container mt-3">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Document</th>
+                <th>StartDate</th>
+                <th>EndDate</th>
+                <th>Created On</th>
+                <th width="20px">Update</th>
+                <th width="20px">Delete</th>
+                <th width="20px">Link</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var meeting in Model.OrderBy(r => r.StartDate))
+            {
+                <tr>
+                    <td>@meeting.Name</td>
+                    <td>@meeting.Description</td>
+                    <td>@meeting.Document</td>
+                    <td>@meeting.StartDate</td>
+                    <td>@meeting.EndDate</td>
+                    <td>@meeting.CreatedOn</td>
+
+                    <td><a href="/meeting/UpdateMeeting/@meeting.Id" class="btn btn-success">Update</a></td>
+                    <td><a href="/meeting/DeleteMeeting/@meeting.Id" class="btn btn-danger">Delete</a></td> 
+                    <td><a href="/meeting/RecipePage/@meeting.Id" class="btn btn-primary">Page</a></td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

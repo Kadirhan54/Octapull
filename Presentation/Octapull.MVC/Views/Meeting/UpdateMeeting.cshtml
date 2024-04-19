@@ -1,0 +1,40 @@
+﻿@model Octapull.Application.Dtos.MeetingDto
+
+<h2>Update Meeting</h2>
+
+<form asp-action="UpdateMeeting" asp-controller="Meeting" method="post" class="needs-validation" novalidate>
+    @* <input type="hidden" asp-for="Id" />  *@
+
+    <div class="form-group">
+        <label asp-for="Name">Name</label>
+        <input asp-for="Name" class="form-control" required  >
+        <div class="invalid-feedback">Name is required.</div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="StartDate">StartDate</label>
+        <input type="date" asp-for="StartDate" class="form-control" required></input>
+        <div class="invalid-feedback">StartDate are required.</div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EndDate">EndDate</label>
+        <input type="date" asp-for="EndDate" class="form-control" required></input>
+        <div class="invalid-feedback">EndDate are required.</div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control" required></textarea>
+        <div class="invalid-feedback">Description is required.</div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Document">Document</label>
+        <input asp-for="Document" class="form-control" required>
+        <div class="invalid-feedback">Document is required.</div>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Update Recipe</button>
+</form>

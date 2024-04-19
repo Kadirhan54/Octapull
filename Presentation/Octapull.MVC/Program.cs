@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.IdentityModel.Tokens;
 using Octapull.Domain.Identity;
 using Octapull.MVC;
 using Octapull.Persistence;
 using Octapull.Persistence.Contexts.Application;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +14,8 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddInfrastructureServices();
 builder.Services.AddWebServices();
+
+
 
 var app = builder.Build();
 

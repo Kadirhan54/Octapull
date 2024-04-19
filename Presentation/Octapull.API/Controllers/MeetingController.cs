@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Octapull.Application.Dtos;
 using Octapull.Domain.Entities;
 using Octapull.Persistence.Contexts.Application;
+using System.Text.Json;
 using System.Threading;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -25,7 +26,9 @@ namespace Octapull.API.Controllers
         {
             var meetings = await _applicationDbContext.Meetings.ToListAsync(cancellationToken);
 
-            return Ok(meetings);
+            var json = JsonSerializer.Serialize(meetings);
+
+            return Ok(json);
         }
 
         [HttpGet("{id}")]

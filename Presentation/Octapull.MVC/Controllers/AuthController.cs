@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Octapull.Domain.Identity;
-using Octapull.MVC.ViewModels;
+using Octapull.MVC.Models;
 
 namespace Octapull.MVC.Controllers
 {
