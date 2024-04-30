@@ -21,6 +21,24 @@ namespace Octapull.MVC.Controllers
             _httpClient = httpClient;
             _userManager = userManager;
         }
+
+        [HttpGet]
+        public IActionResult GetMeeting()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult CreateMeeting()
+        {
+            return View();
+        }
+        [HttpGet]
+        public IActionResult UpdateMeeting()
+        {
+            return View();
+        }
+
         [HttpGet]
         public async Task<IActionResult> IndexAsync()
         {
@@ -41,22 +59,7 @@ namespace Octapull.MVC.Controllers
                 return View("Error");
             }
         }
-        [HttpGet]
-        public IActionResult GetMeeting()
-        {
-            return View();
-        }
 
-        [HttpGet]
-        public IActionResult CreateMeeting()
-        {
-            return View();
-        }
-        [HttpGet]
-        public IActionResult UpdateMeeting()
-        {
-            return View();
-        }
         [HttpGet]
         public IActionResult DeleteMeeting()
         {

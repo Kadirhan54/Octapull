@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Octapull.Application.Abstractions;
 using Octapull.Application.Dtos;
+using Octapull.Application.Dtos.Meeting;
 using Octapull.Domain.Entities;
 using Octapull.Persistence.Contexts.Application;
 using System.Text.Json;
@@ -14,91 +16,63 @@ namespace Octapull.API.Controllers
     [ApiController]
     public class MeetingController : ControllerBase
     {
-        private readonly ApplicationDbContext _applicationDbContext;
-
-        public MeetingController(ApplicationDbContext applicationDbContext)
+        public readonly IMeetingService _meetingService;
+        public MeetingController(ApplicationDbContext applicationDbContext, IMeetingService meetingService)
         {
-            _applicationDbContext = applicationDbContext;
+            _meetingService = meetingService;
+        }
+
+        [HttpPost]
+        public IActionResult CreateMeeting(CreateMeetingDto createMeetingDto)
+        {
+            var meeting = _meetingService.CreateMeeting(createMeetingDto);
+
+            return Ok(meeting);
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateMeetingAsync(UpdateMeetingDto updateMeetingDto, CancellationToken cancellationToken)
+        {
+            await _meetingService.UpdateMeetingAsync(updateMeetingDto, cancellationToken);
+
+            return Ok();
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteMeetingAsync(Guid id, CancellationToken cancellationToken)
+        {
+            await _meetingService.DeleteMeetingAsync(id, cancellationToken);
+
+            return Ok(id);
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllMeetings(CancellationToken cancellationToken)
         {
-            var meetings = await _applicationDbContext.Meetings.ToListAsync(cancellationToken);
+            var meetings = await _meetingService.GetAllMeetingsAsync(cancellationToken);
 
+            // ??
             var json = JsonSerializer.Serialize(meetings);
 
             return Ok(json);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetMeetingByIdAsync(Guid id)
+        public async Task<IActionResult> GetMeetingByIdAsync(Guid id, CancellationToken cancellationToken)
         {
-            var meeting = await _applicationDbContext.Meetings.Where(x => x.Id == id).SingleOrDefaultAsync();
-
-            if (meeting == null)
-                return NotFound();
+            var meeting = await _meetingService.GetMeetingByIdAsync(id, cancellationToken);
 
             return Ok(meeting);
         }
 
-        [HttpPost]
-        public IActionResult CreateMeeting(MeetingDto meetingDto)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMeetingsByUserIdAsync(Guid id, CancellationToken cancellationToken)
         {
+            var meetings = await _meetingService.GetMeetingsByUserIdAsync(id, cancellationToken);
 
-            Meeting meeting = new()
-            {
-                Id = Guid.NewGuid(),
-                Name = meetingDto.Name,
-                StartDate = meetingDto.StartDate,
-                EndDate= meetingDto.EndDate,
-                Description = meetingDto.Description,
-                Document = meetingDto.Document
-            };
-
-            _applicationDbContext.Add(meeting);
-            _applicationDbContext.SaveChanges();
-
-            return Ok(meeting);
+            return Ok(meetings);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateMeetingAsync(Guid id, MeetingDto meetingDto)
-        {
-            var meeting = await _applicationDbContext.Meetings.Where(x=>x.Id == id).SingleOrDefaultAsync();
-
-            if(meeting == null)
-            {
-                return NotFound();
-            }
-
-            meeting.Name = meetingDto.Name;
-            meeting.StartDate = meetingDto.StartDate;
-            meeting.EndDate = meetingDto.EndDate;
-            meeting.Description = meetingDto.Description;
-            meeting.Document = meetingDto.Document;
-
-            _applicationDbContext.Update(meeting);
-            _applicationDbContext.SaveChanges();
-
-            return Ok(id);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteMeetingAsync(Guid id)
-        {
-            var meeting = await _applicationDbContext.Meetings.Where(x => x.Id == id).SingleOrDefaultAsync();
-
-            if (meeting == null)
-            {
-                return NotFound();
-            }
-
-            _applicationDbContext.Remove(meeting);
-            _applicationDbContext.SaveChanges();
-
-            return Ok(id);
-        }
-
+            
     }
 }

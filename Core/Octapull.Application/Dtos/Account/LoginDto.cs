@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Octapull.Application.Dtos
+namespace Octapull.Application.Dtos.User
 {
     public class LoginDto
     {

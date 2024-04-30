@@ -25,28 +25,49 @@ namespace Octapull.Persistence.Contexts.Application
             base.OnModelCreating(modelBuilder);
         }
 
-        //public override int SaveChanges()
-        //{
-        //    var entries = ChangeTracker.Entries();
+        public override int SaveChanges()
+        {
+            var entries = ChangeTracker.Entries();
 
-        //    foreach (var entry in entries)
-        //    {
-        //        if (entry.State == EntityState.Added)
-        //        {
-        //            ((ICreatedByEntity)entry.Entity).CreatedOn = DateTime.UtcNow;
-        //        }
-        //        else if (entry.State == EntityState.Modified)
-        //        {
-        //            ((IModifiedByEntity)entry.Entity).ModifiedOn = DateTime.UtcNow;
-        //        }
-        //        else if (entry.State == EntityState.Deleted)
-        //        {
-        //            ((IDeletedByEntity)entry.Entity).DeletedOn = DateTime.UtcNow;
-        //        }
-        //    }
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Added)
+                {
+                    ((ICreatedByEntity)entry.Entity).CreatedOn = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Modified)
+                {
+                    ((IModifiedByEntity)entry.Entity).ModifiedOn = DateTime.UtcNow;
+                }
+                else if (entry.State == EntityState.Deleted)
+                {
+                    ((IDeletedByEntity)entry.Entity).DeletedOn = DateTime.UtcNow;
+                }
+            }
 
-        //    return base.SaveChanges();
-        //}
+            //foreach (var data in datas)
+            //{
+            //    switch (data.State)
+            //    {
+            //        case EntityState.Added:
+            //            data.Entity.CreatedDate = DateTime.UtcNow;
+            //            data.Entity.Status = Status.Inserted;
+            //            break;
+            //        case EntityState.Modified:
+            //            data.Entity.LastModifiedDate = DateTime.UtcNow;
+            //            data.Entity.Status = Status.Updated;
+            //            break;
+            //        case EntityState.Deleted:
+            //            data.Entity.CreatedDate = DateTime.UtcNow;
+            //            data.Entity.Status = Status.Deleted;
+            //            break;
+            //        default:
+            //            break;
+            //    }
+            //}
+
+            return base.SaveChanges();
+        }
 
     }
 }

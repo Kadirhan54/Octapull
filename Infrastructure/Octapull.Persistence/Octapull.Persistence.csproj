@@ -19,6 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\Octapull.Application\Octapull.Application.csproj" />
     <ProjectReference Include="..\..\Core\Octapull.Domain\Octapull.Domain.csproj" />
   </ItemGroup>
 
