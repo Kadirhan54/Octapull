@@ -1,4 +1,6 @@
-﻿namespace Octapull.Application.Dtos.Meeting
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Octapull.Application.Dtos.Meeting
 {
     public class CreateMeetingDto
     {
@@ -6,6 +8,6 @@
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }
         public string Description { get; set; }
-        public string Document { get; set; }
+        public IEnumerable<IFormFile?> Document { get; set; }
     }
 }

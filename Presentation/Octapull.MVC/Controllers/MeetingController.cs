@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Azure.Core;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Octapull.Application.Abstractions;
+using Octapull.Application.Constants;
 using Octapull.Application.Dtos;
 using Octapull.Domain.Entities;
 using Octapull.Domain.Identity;
@@ -13,13 +16,15 @@ namespace Octapull.MVC.Controllers
     [Authorize]
     public class MeetingController : Controller
     {
-        private readonly HttpClient _httpClient;
-        private readonly UserManager<User> _userManager;
 
-        public MeetingController(HttpClient httpClient, UserManager<User> userManager)
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpService _httpService;
+
+        public MeetingController( UserManager<ApplicationUser> userManager, IHttpService httpService)
         {
-            _httpClient = httpClient;
+
             _userManager = userManager;
+            _httpService = httpService;
         }
 
         [HttpGet]
@@ -71,7 +76,6 @@ namespace Octapull.MVC.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateMeetingAsync(MeetingViewModel meetingViewModel)
         {
-            string apiUrl = "https://localhost:7289/api/Meeting";
 
             var user = await _userManager.GetUserAsync(User);
 
@@ -83,14 +87,15 @@ namespace Octapull.MVC.Controllers
                 StartDate = meetingViewModel.StartDate,
                 EndDate = meetingViewModel.EndDate,
                 Description = meetingViewModel.Description,
-                Document= meetingViewModel.Document,
+                Document = meetingViewModel.Document,
             };
 
-            var serializedData = JsonSerializer.Serialize(requestData);
+            var request = new HttpRequestMessage(HttpMethod.Post, ApiUrls.MeetingApiRequestBaseUrl)
+            {
+                Content = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json")
+            };
 
-            var content = new StringContent(serializedData, Encoding.UTF8, "application/json");
-
-            HttpResponseMessage response = await _httpClient.PostAsync(apiUrl, content);
+            var response = await _httpService.SendRequestAsync(request, CancellationToken.None);
 
             if (response.IsSuccessStatusCode)
             {
@@ -104,8 +109,6 @@ namespace Octapull.MVC.Controllers
                 return View("Error");
             }
         }
-
-
 
         [HttpPost]
         public async Task<IActionResult> UpdateMeetingAsync(Guid id, MeetingViewModel meetingViewModel)

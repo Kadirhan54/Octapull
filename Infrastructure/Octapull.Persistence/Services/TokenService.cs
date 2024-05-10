@@ -1,7 +1,6 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Octapull.Application.Abstractions;
 using Octapull.Domain.Identity;
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -11,7 +10,7 @@ namespace Octapull.Infrastructure.Services
     public class TokenService : ITokenService
     {
         private const int ExpirationMinutes = 30;
-        public string CreateToken(User user)
+        public string CreateToken(ApplicationUser user)
         {
 
             var expiration = DateTime.UtcNow.AddMinutes(ExpirationMinutes);
@@ -34,7 +33,7 @@ namespace Octapull.Infrastructure.Services
                 signingCredentials: credentials
             );
 
-        private List<Claim> CreateClaims(User user)
+        private List<Claim> CreateClaims(ApplicationUser user)
         {
             try
             {
@@ -42,7 +41,7 @@ namespace Octapull.Infrastructure.Services
                 {
                     new Claim(JwtRegisteredClaimNames.Sub,  user.Id.ToString()), //"TokenForTheApiWithAuth" sildim
                     new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                    new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)),
+                    new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), //
                     new Claim(ClaimTypes.Name, user.UserName),
                     new Claim(ClaimTypes.Email, user.Email)
@@ -59,7 +58,7 @@ namespace Octapull.Infrastructure.Services
         {
             return new SigningCredentials(
                 new SymmetricSecurityKey(
-                    Encoding.UTF8.GetBytes("!SomethingSecret!")
+                    Encoding.UTF8.GetBytes("!SomethingSecretThatMustToBeBetween135and256!")
                 ),
                 SecurityAlgorithms.HmacSha256
             );

@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Octapull.Domain.Identity;
+﻿using Octapull.Domain.Identity;
 
 namespace Octapull.Domain.Entities
 {
@@ -9,6 +8,10 @@ namespace Octapull.Domain.Entities
         public DateTimeOffset StartDate { get; set; }
         public DateTimeOffset EndDate { get; set; }
         public string Description { get; set; }
-        public string Document { get; set; }
+        
+        public ICollection<MeetingDocument> MeetingDocuments { get; set; }
+
+        public Guid ApplicationUserId { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
     }
 }

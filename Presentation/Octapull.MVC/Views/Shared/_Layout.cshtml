@@ -2,7 +2,7 @@
 @using Microsoft.AspNetCore.Identity
 
 @{
-    var signInManager = Context.RequestServices.GetRequiredService<SignInManager<User>>();
+    var signInManager = Context.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>();
 }
 
 <!DOCTYPE html>

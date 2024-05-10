@@ -8,10 +8,10 @@ namespace Octapull.MVC.Controllers
 {
     public class AuthController : Controller
     {
-        private readonly UserManager<User> _userManager;
-        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AuthController(UserManager<User> userManager,SignInManager<User> signInManager)
+        public AuthController(UserManager<ApplicationUser> userManager,SignInManager<ApplicationUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -60,7 +60,7 @@ namespace Octapull.MVC.Controllers
 
             var userId = Guid.NewGuid();
 
-            var user = new User()
+            var user = new ApplicationUser()
             {
                 Id = userId,
                 UserName = registerViewModel.Username,

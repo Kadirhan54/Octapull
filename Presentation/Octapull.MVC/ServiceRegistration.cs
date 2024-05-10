@@ -15,11 +15,11 @@ namespace Octapull.MVC
             services.AddSession();
 
             // Add services for SignInManager
-            services.AddScoped<SignInManager<User>>();
+            services.AddScoped<SignInManager<ApplicationUser>>();
 
             services.AddHttpClient<MeetingController>();
 
-            services.AddIdentity<User, Role>(options =>
+            services.AddIdentity<ApplicationUser, Role>(options =>
             {
                 // User Password Options
                 options.Password.RequireDigit = false;

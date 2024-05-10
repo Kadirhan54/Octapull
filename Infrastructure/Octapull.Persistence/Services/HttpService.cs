@@ -13,12 +13,25 @@ namespace Octapull.Persistence.Services
 
         public HttpService(HttpClient httpClient)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         }
 
-        public Task<HttpResponseMessage> SendAsync(HttpResponseMessage request, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if (request == null)
+                throw new ArgumentNullException(nameof(request));
+
+            try
+            {
+                // Send the HTTP request and return the response
+                return await _httpClient.SendAsync(request, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Handle any exceptions (e.g., network errors)
+                // You might want to log the exception or handle it differently based on your requirements
+                throw new HttpRequestException("An error occurred while sending the HTTP request.", ex);
+            }
         }
     }
 }

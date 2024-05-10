@@ -1,7 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Octapull.Application.Abstractions;
+using Octapull.Application.Abstractions.Storage;
 using Octapull.Application.Dtos.Meeting;
+using Octapull.Application.Interfaces;
 using Octapull.Domain.Entities;
+using Octapull.Domain.Identity;
 using Octapull.Persistence.Contexts.Application;
 
 namespace Octapull.Persistence.Services
@@ -9,40 +13,95 @@ namespace Octapull.Persistence.Services
     public class MeetingService : IMeetingService
     {
         private readonly ApplicationDbContext _applicationDbContext;
+        private readonly IIdentityService _identityService;
+        private readonly IBlobService _blobService;
+        private readonly IMapper _mapper;
 
-        public MeetingService(ApplicationDbContext applicationDbContext)
+        public MeetingService(ApplicationDbContext applicationDbContext, IIdentityService identityService, IBlobService blobService, IMapper mapper)
         {
             _applicationDbContext = applicationDbContext;
+            _identityService = identityService;
+            _blobService = blobService;
+            _mapper = mapper;
         }
 
-        public Task<bool> CreateMeeting(CreateMeetingDto createMeetingDto)
+        public async Task<bool> CreateMeetingAsync(CreateMeetingDto createMeetingDto, string createdByUserName, CancellationToken cancellationToken)
         {
-            Meeting meeting = new()
+            var applicationUser = await _identityService.GetUserByUserNameAsync(createdByUserName);
+
+            //Meeting meeting = new()
+            //{
+            //    Id = Guid.NewGuid(),
+            //    Name = createMeetingDto.Name,
+            //    StartDate = createMeetingDto.StartDate,
+            //    EndDate = createMeetingDto.EndDate,
+            //    Description = createMeetingDto.Description,
+            //    DocumentsId = new List<string>(),
+            //    CreatedByUserId = applicationUser?.Id,
+            //    ApplicationUser = applicationUser,
+            //    ApplicationUserId = applicationUser.Id,
+            //    CreatedOn = DateTimeOffset.UtcNow,
+            //};
+
+            Meeting meeting = _mapper.Map<Meeting>(createMeetingDto);
+
+            meeting.Id = Guid.NewGuid();
+            meeting.MeetingDocuments = new List<MeetingDocument>();
+            meeting.CreatedByUserId = applicationUser?.Id;
+            meeting.ApplicationUser = applicationUser;
+            meeting.ApplicationUserId = applicationUser.Id;
+
+            if (createMeetingDto.Document != null)
             {
-                Id = Guid.NewGuid(),
-                Name = createMeetingDto.Name,
-                StartDate = createMeetingDto.StartDate,
-                EndDate = createMeetingDto.EndDate,
-                Description = createMeetingDto.Description,
-                Document = createMeetingDto.Document
-            };
+                foreach (var file in createMeetingDto.Document)
+                {
+                    var fileId = await _blobService.UploadAsync(file.OpenReadStream(), "documents", file.ContentType, cancellationToken);
+
+                    var document = new Document
+                    {
+                        Id = fileId,
+                        CreatedByUserId = applicationUser?.Id,
+                    };
+
+                    _applicationDbContext.Add(document);
+
+                    var meetingDocument = new MeetingDocument
+                    {
+                        MeetingId = meeting.Id,
+                        DocumentId = document.Id,
+                    };
+
+                    _applicationDbContext.Add(meetingDocument);
+
+                    meeting.MeetingDocuments.Add(meetingDocument);
+                }
+            }
 
             try
             {
                 _applicationDbContext.Add(meeting);
                 _applicationDbContext.SaveChanges();
-                return Task.FromResult(true);
+
+                return true;
+                //return Task.FromResult(true);
             }
             catch (Exception)
             {
-                return Task.FromResult(false);
+                return false;
+                //return Task.FromResult(false);
             }
-
         }
 
-        public async Task<bool> UpdateMeetingAsync(UpdateMeetingDto updateMeetingDto,CancellationToken cancellationToken)
+        public async Task<bool> UpdateMeetingAsync(UpdateMeetingDto updateMeetingDto, Guid meetingId, string createdByUserName ,CancellationToken cancellationToken)
         {
-            var meeting = await _applicationDbContext.Meetings.Where(x => x.Id == updateMeetingDto.MeetingId).SingleOrDefaultAsync(cancellationToken);
+            var meeting = await _applicationDbContext.Meetings.Where(x => x.Id == meetingId).SingleOrDefaultAsync(cancellationToken);
+
+            if (meeting == null)
+            {
+                return false;
+            }
+
+            var applicationUser = await _identityService.GetUserByUserNameAsync(createdByUserName);
 
             if (meeting == null)
             {
@@ -53,22 +112,45 @@ namespace Octapull.Persistence.Services
             meeting.StartDate = updateMeetingDto.StartDate;
             meeting.EndDate = updateMeetingDto.EndDate;
             meeting.Description = updateMeetingDto.Description;
-            meeting.Document = updateMeetingDto.Document;
+            meeting.MeetingDocuments = new List<MeetingDocument>();
+
+            foreach (var file in updateMeetingDto.Documents)
+            {
+                var fileId = await _blobService.UploadAsync(file.OpenReadStream(), "documents", file.ContentType, cancellationToken);
+
+                var document = new Document
+                {
+                    Id = fileId,
+                    CreatedByUserId = applicationUser?.Id,
+                };
+
+                _applicationDbContext.Add(document);
+
+                var meetingDocument = new MeetingDocument
+                {
+                    MeetingId = meeting.Id,
+                    DocumentId = document.Id,
+                };
+
+                _applicationDbContext.Add(meetingDocument);
+
+                meeting.MeetingDocuments.Add(meetingDocument);
+            }
 
             try
             {
                 _applicationDbContext.Update(meeting);
                 _applicationDbContext.SaveChanges();
+
+                return true;
             }
             catch (Exception)
             {
                 return false;
             }
-
-            return true;
         }
 
-        public async Task<bool> DeleteMeetingAsync(Guid meetingId,CancellationToken cancellationToken)
+        public async Task<bool> DeleteMeetingAsync(Guid meetingId, CancellationToken cancellationToken)
         {
             var meeting = await _applicationDbContext.Meetings.Where(x => x.Id == meetingId).SingleOrDefaultAsync(cancellationToken);
 
@@ -94,12 +176,7 @@ namespace Octapull.Persistence.Services
         {
             var meetings = await _applicationDbContext.Meetings.ToListAsync(cancellationToken);
 
-            //if (meetings == null)
-            //{
-            //    return false;
-            //}
-
-            return meetings;    
+            return meetings;
         }
 
         public async Task<Meeting> GetMeetingByIdAsync(Guid meetingId, CancellationToken cancellationToken)

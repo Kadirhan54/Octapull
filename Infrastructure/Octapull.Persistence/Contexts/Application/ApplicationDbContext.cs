@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace Octapull.Persistence.Contexts.Application
 {
-    public class ApplicationDbContext : IdentityDbContext<User, Role, Guid>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Role, Guid>
     {
 
         public DbSet<Meeting> Meetings{ get; set; }
@@ -18,11 +18,14 @@ namespace Octapull.Persistence.Contexts.Application
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
 
-            //modelBuilder.Ignore<Meeting>();
+            //modelBuilder.Entity<MeetingDocument>().HasNoKey();  
 
-            base.OnModelCreating(modelBuilder);
+            // ???
+            //modelBuilder.Ignore<Meeting>();
         }
 
         public override int SaveChanges()

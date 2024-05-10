@@ -1,49 +1,47 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Octapull.Application.Abstractions;
-using Octapull.Application.Dtos;
 using Octapull.Application.Dtos.Meeting;
-using Octapull.Domain.Entities;
-using Octapull.Persistence.Contexts.Application;
-using System.Text.Json;
-using System.Threading;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace Octapull.API.Controllers
 {
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class MeetingController : ControllerBase
     {
         public readonly IMeetingService _meetingService;
-        public MeetingController(ApplicationDbContext applicationDbContext, IMeetingService meetingService)
+        public MeetingController(IMeetingService meetingService)
         {
             _meetingService = meetingService;
         }
 
         [HttpPost]
-        public IActionResult CreateMeeting(CreateMeetingDto createMeetingDto)
+        public async Task<IActionResult> CreateMeetingAsync([FromForm] CreateMeetingDto createMeetingDto)
         {
-            var meeting = _meetingService.CreateMeeting(createMeetingDto);
+
+            var meeting = await _meetingService.CreateMeetingAsync(createMeetingDto, User.Identity.Name);
+            //var meeting = _meetingService.CreateMeeting(createMeetingDto, User.Identity.Claims[0]);
 
             return Ok(meeting);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateMeetingAsync(UpdateMeetingDto updateMeetingDto, CancellationToken cancellationToken)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateMeetingAsync(Guid id, [FromForm] UpdateMeetingDto updateMeetingDto, CancellationToken cancellationToken)
         {
-            await _meetingService.UpdateMeetingAsync(updateMeetingDto, cancellationToken);
+            var result = await _meetingService.UpdateMeetingAsync(updateMeetingDto, id, User.Identity.Name, cancellationToken);
 
-            return Ok();
+            return Ok(result);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteMeetingAsync(Guid id, CancellationToken cancellationToken)
         {
-            await _meetingService.DeleteMeetingAsync(id, cancellationToken);
+            var result = await _meetingService.DeleteMeetingAsync(id, cancellationToken);
 
-            return Ok(id);
+            return Ok(result);
         }
 
         [HttpGet]
@@ -51,10 +49,7 @@ namespace Octapull.API.Controllers
         {
             var meetings = await _meetingService.GetAllMeetingsAsync(cancellationToken);
 
-            // ??
-            var json = JsonSerializer.Serialize(meetings);
-
-            return Ok(json);
+            return Ok(meetings);
         }
 
         [HttpGet("{id}")]
@@ -65,14 +60,14 @@ namespace Octapull.API.Controllers
             return Ok(meeting);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetMeetingsByUserIdAsync(Guid id, CancellationToken cancellationToken)
-        {
-            var meetings = await _meetingService.GetMeetingsByUserIdAsync(id, cancellationToken);
+        //[HttpGet("{id}")]
+        //public async Task<IActionResult> GetMeetingsByUserIdAsync(Guid id, CancellationToken cancellationToken)
+        //{
+        //    var meetings = await _meetingService.GetMeetingsByUserIdAsync(id, cancellationToken);
 
-            return Ok(meetings);
-        }
+        //    return Ok(meetings);
+        //}
 
-            
+
     }
 }
